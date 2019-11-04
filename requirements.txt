@@ -1,0 +1,9 @@
+# don't install these manually, there's a Dockerfile because caffe is Bad
+google
+celery
+flask
+IPython
+numpy
+Pillow
+protobuf
+scipy

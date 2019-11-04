@@ -1,0 +1,32 @@
+version: '3'
+services:
+    api:
+        image: hubbeking/deepdream-docker:latest
+        depends_on:
+          - queue
+          - worker
+        environment:
+          - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+          - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+          - RABBITMQ_DEFAULT_VHOST=tasks
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./deepdream:/opt/deepdream
+    queue:
+        image: rabbitmq:latest
+        environment:
+            - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+            - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+            - RABBITMQ_DEFAULT_VHOST=tasks
+    worker:
+        image: hubbeking/deepdream-docker:latest
+        command: celery -A tasks worker --loglevel=INFO
+        environment:
+            - GMAIL_USER=${GMAIL_USER}
+            - GMAIL_PASS=${GMAIL_PASS}
+            - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+            - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+            - RABBITMQ_DEFAULT_VHOST=tasks
+        volumes:
+            - ./deepdream:/opt/deepdream

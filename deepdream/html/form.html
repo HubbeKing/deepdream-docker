@@ -1,0 +1,28 @@
+<html>
+    <div align="center">
+        <h1>Deep Dream Web Service</h1>
+
+        <form action="" method=post enctype=multipart/form-data>
+            <h2>Enter Email Address</h2>
+            <p><input type=text name=address></p>
+
+            <h2>Select layer type</h2>
+            <p>No idea which layer to select? Click this <a href="https://www.pyimagesearch.com/2015/08/03/deep-dream-visualizing-every-layer-of-googlenet/"><b>link</b></a> to see the example outputs of layers</p>
+
+            <p><input type=radio name=layer value=inception_3b/3x3_reduce>inception_3b/3x3_reduce</p>
+            <p><input type=radio name=layer value=inception_3b/5x5_reduce>inception_3b/5x5_reduce</p>
+            <p><input type=radio name=layer value=inception_3a/output>inception_3a/output</p>
+            <p><input type=radio name=layer value=inception_4a/3x3 checked>inception_4a/3x3</p>
+            <p><input type=radio name=layer value=inception_4c/pool>inception_4c/pool</p>
+            <p><input type=radio name=layer value=inception_5a/1x1>inception_5a/1x1</p>
+
+            <h2>Enter max width</h2>
+            <p>(For faster processing, enter values between 500-1000)</p>
+            <p><input type=text name=width value="500"></p>
+
+            <h2>Upload image file</h2>
+            <p> <input type=file name=file><input type=submit value=Upload></p>
+        </form>
+        <p>Your photo will be run on Deep Dream and sent back to you to the email you provided.</p>
+    </div>
+</html>
