@@ -4,7 +4,7 @@
 
         <form action="" method=post enctype=multipart/form-data>
             <h2>Enter Email Address</h2>
-            <p><input type=text name=address></p>
+            <p><input type=text name=address required></p>
 
             <h2>Select layer type</h2>
             <p>No idea which layer to select? Click this <a href="https://www.pyimagesearch.com/2015/08/03/deep-dream-visualizing-every-layer-of-googlenet/"><b>link</b></a> to see the example outputs of layers</p>
@@ -17,12 +17,13 @@
             <p><input type=radio name=layer value=inception_5a/1x1>inception_5a/1x1</p>
 
             <h2>Enter max width</h2>
-            <p>(For faster processing, enter values between 500-1000)</p>
-            <p><input type=text name=width value="500"></p>
+            <p>(For faster processing, enter lower values. Value caps at 1000.)</p>
+            <p><input type=number name=width value="500" max="1000" required></p>
 
             <h2>Upload image file</h2>
-            <p> <input type=file name=file><input type=submit value=Upload></p>
+            <p> <input type=file name=file required><input type=submit value=Upload></p>
         </form>
         <p>Your photo will be run on Deep Dream and sent back to you to the email you provided.</p>
+        <p>Please allow 10-30 minutes for processing. Note that higher max width increases wait time.</p>
     </div>
 </html>

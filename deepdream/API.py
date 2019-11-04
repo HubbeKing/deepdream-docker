@@ -24,8 +24,11 @@ def upload_page():
     elif request.method == "POST":
         user_email_to = request.form["address"]
         user_end_layer = request.form["layer"]
-        user_width = request.form["width"]
+        user_width = int(request.form["width"])
         user_file = request.files["file"]
+
+        if user_width > 1000:
+            user_width = 1000
 
         if user_file and allowed_file(user_file.filename):
             file_path = os.path.join(INPUT_FOLDER, secure_filename(user_file.filename))

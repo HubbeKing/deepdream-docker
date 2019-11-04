@@ -4,6 +4,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
 import smtplib
+import time
 
 from deepdream import dream_about
 
@@ -36,32 +37,36 @@ def dream(input_file_path, output_layer_name, maximum_image_width):
     """
     Synchronous call to dream_about, takes several minutes (at least)
     """
+    start = time.time()
     print "Dreaming about {}".format(input_file_path)
     print "Dreaming to layer {}".format(output_layer_name)
     print "Max-width is {}".format(maximum_image_width)
     dream_about(input_file_path, output_layer_name, maximum_image_width, OUTPUT_FOLDER)
+    end = time.time()
+    print "Dreaming took {} seconds".format(end-start)
     return os.path.exists(os.path.join(OUTPUT_FOLDER, os.path.basename(input_file_path)))
 
 
 def mail(address, attachment_path):
-    print "Emailing {} to {}".format(attachment_path, address)
-    msg = MIMEMultipart()
+    if address != "example@example.com":
+        print "Emailing {} to {}".format(attachment_path, address)
+        msg = MIMEMultipart()
 
-    msg["From"] = GMAIL_USER
-    msg["To"] = address
-    msg["Subject"] = "Photo from Deep Dream"
+        msg["From"] = GMAIL_USER
+        msg["To"] = address
+        msg["Subject"] = "Photo from Deep Dream"
 
-    msg.attach(MIMEText("Please find attached photo"))
+        msg.attach(MIMEText("Please find attached photo"))
 
-    with open(attachment_path, "rb") as attachment:
-        img = MIMEImage(attachment.read())
-    img["Content-Disposition"] = 'attachment; filename="{}"'.format(os.path.basename(attachment_path))
-    msg.attach(img)
+        with open(attachment_path, "rb") as attachment:
+            img = MIMEImage(attachment.read())
+        img["Content-Disposition"] = 'attachment; filename="{}"'.format(os.path.basename(attachment_path))
+        msg.attach(img)
 
-    mail_server = smtplib.SMTP("smtp.gmail.com", 587)
-    mail_server.ehlo()
-    mail_server.starttls()
-    mail_server.ehlo()
-    mail_server.login(GMAIL_USER, GMAIL_PASS)
-    mail_server.sendmail(GMAIL_USER, [address], msg.as_string())
-    mail_server.close()
+        mail_server = smtplib.SMTP("smtp.gmail.com", 587)
+        mail_server.ehlo()
+        mail_server.starttls()
+        mail_server.ehlo()
+        mail_server.login(GMAIL_USER, GMAIL_PASS)
+        mail_server.sendmail(GMAIL_USER, [address], msg.as_string())
+        mail_server.close()
