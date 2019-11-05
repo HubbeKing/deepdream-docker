@@ -6,7 +6,7 @@ import os
 import smtplib
 import time
 
-from deepdream import dream_about
+from deepdream import dream_about, guided_dream_about
 
 GMAIL_USER = os.environ.get("GMAIL_USER")
 GMAIL_PASS = os.environ.get("GMAIL_PASS")
@@ -26,7 +26,18 @@ app = Celery('tasks', broker='pyamqp://{user}:{pass}@queue:5672/{vhost}'.format(
 def dream_and_email(input_file_path, output_layer_name, maximum_image_width, to_email):
     deepdream = dream(input_file_path, output_layer_name, maximum_image_width)
     if deepdream:
-        output_file_name = "/opt/deepdream/outputs/{}".format(os.path.basename(input_file_path))
+        output_file_name = os.path.join(OUTPUT_FOLDER, os.path.basename(input_file_path))
+        mail(to_email, output_file_name)
+        print "Successfully dreamed about {} and emailed.".format(input_file_path)
+    else:
+        print "Failed to dream about {}".format(input_file_path)
+
+
+@app.task
+def guided_dream_and_email(input_file_path, guide_file_path, output_layer_name, maximum_image_width, to_email):
+    deepdream = guided_dream(input_file_path, guide_file_path, output_layer_name, maximum_image_width)
+    if deepdream:
+        output_file_name = os.path.join(OUTPUT_FOLDER, os.path.basename(input_file_path))
         mail(to_email, output_file_name)
         print "Successfully dreamed about {} and emailed.".format(input_file_path)
     else:
@@ -42,6 +53,21 @@ def dream(input_file_path, output_layer_name, maximum_image_width):
     print "Dreaming to layer {}".format(output_layer_name)
     print "Max-width is {}".format(maximum_image_width)
     dream_about(input_file_path, output_layer_name, maximum_image_width, OUTPUT_FOLDER)
+    end = time.time()
+    print "Dreaming took {} seconds".format(end-start)
+    return os.path.exists(os.path.join(OUTPUT_FOLDER, os.path.basename(input_file_path)))
+
+
+def guided_dream(input_file_path, guide_file_path, output_layer_name, maximum_image_width):
+    """
+    Synchronous call to guided_dream, takes several minutes (at least)
+    """
+    start = time.time()
+    print "Dreaming about {}".format(input_file_path)
+    print "Using {} as a guide image".format(guide_file_path)
+    print "Dreaming to layer {}".format(output_layer_name)
+    print "Max-width is {}".format(maximum_image_width)
+    guided_dream_about(input_file_path, guide_file_path, output_layer_name, maximum_image_width, OUTPUT_FOLDER)
     end = time.time()
     print "Dreaming took {} seconds".format(end-start)
     return os.path.exists(os.path.join(OUTPUT_FOLDER, os.path.basename(input_file_path)))
