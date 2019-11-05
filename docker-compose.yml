@@ -23,6 +23,7 @@ services:
         image: hubbeking/deepdream-docker:latest
         command: celery -A tasks worker --loglevel=INFO
         environment:
+            - GLOG_minloglevel=2                    # reduced log-level for Caffe (2=WARN, 3=ERROR)
             - GMAIL_USER=${GMAIL_USER}
             - GMAIL_PASS=${GMAIL_PASS}
             - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
