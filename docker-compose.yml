@@ -13,6 +13,7 @@ services:
           - RABBITMQ_DEFAULT_VHOST=tasks
         ports:
             - "8000:8000"
+        restart: unless-stopped
         volumes:
             - ./deepdream/inputs:/opt/deepdream/inputs
             - ./deepdream/outputs:/opt/deepdream/outputs
@@ -24,6 +25,7 @@ services:
             - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
             - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
             - RABBITMQ_DEFAULT_VHOST=tasks
+        restart: unless-stopped
     worker:
         image: hubbeking/deepdream-docker:latest
         command: celery -A tasks worker --loglevel=INFO
@@ -38,6 +40,7 @@ services:
             - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
             - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
             - RABBITMQ_DEFAULT_VHOST=tasks
+        restart: unless-stopped
         volumes:
             - ./deepdream/inputs:/opt/deepdream/inputs
             - ./deepdream/outputs:/opt/deepdream/outputs
