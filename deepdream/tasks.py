@@ -8,18 +8,22 @@ import time
 
 from deepdream import dream_about, guided_dream_about
 
-GMAIL_USER = os.environ.get("GMAIL_USER")
-GMAIL_PASS = os.environ.get("GMAIL_PASS")
+EMAIL_SMTP = os.environ.get("EMAIL_SMTP")
+EMAIL_PORT = os.environ.get("EMAIL_PORT")
+EMAIL_USER = os.environ.get("EMAIL_USER")
+EMAIL_PASS = os.environ.get("EMAIL_PASS")
 INPUT_FOLDER = "/opt/deepdream/inputs/"
 OUTPUT_FOLDER = "/opt/deepdream/outputs/"
 
 RABBIT_MQ_CONFIG = {
+    "host": os.environ.get("RABBITMQ_HOST"),
+    "port": os.environ.get("RABBITMQ_PORT"),
     "user": os.environ.get("RABBITMQ_DEFAULT_USER"),
     "pass": os.environ.get("RABBITMQ_DEFAULT_PASS"),
     "vhost": os.environ.get("RABBITMQ_DEFAULT_VHOST")
 }
 
-app = Celery('tasks', broker='pyamqp://{user}:{pass}@queue:5672/{vhost}'.format(**RABBIT_MQ_CONFIG))
+app = Celery('tasks', broker='pyamqp://{user}:{pass}@{host}:{port}/{vhost}'.format(**RABBIT_MQ_CONFIG))
 
 
 @app.task
@@ -78,7 +82,7 @@ def mail(address, attachment_path):
         print "Emailing {} to {}".format(attachment_path, address)
         msg = MIMEMultipart()
 
-        msg["From"] = GMAIL_USER
+        msg["From"] = EMAIL_USER
         msg["To"] = address
         msg["Subject"] = "Photo from Deep Dream"
 
@@ -89,10 +93,10 @@ def mail(address, attachment_path):
         img["Content-Disposition"] = 'attachment; filename="{}"'.format(os.path.basename(attachment_path))
         msg.attach(img)
 
-        mail_server = smtplib.SMTP("smtp.gmail.com", 587)
+        mail_server = smtplib.SMTP(EMAIL_SMTP, EMAIL_PORT)
         mail_server.ehlo()
         mail_server.starttls()
         mail_server.ehlo()
-        mail_server.login(GMAIL_USER, GMAIL_PASS)
-        mail_server.sendmail(GMAIL_USER, [address], msg.as_string())
+        mail_server.login(EMAIL_USER, EMAIL_PASS)
+        mail_server.sendmail(EMAIL_USER, [address], msg.as_string())
         mail_server.close()

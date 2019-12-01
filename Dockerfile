@@ -14,6 +14,7 @@ RUN useradd --uid 1000 --gid 1000 dreamer
 USER dreamer
 
 WORKDIR /opt/deepdream
+ADD ./* /opt/deepdream/
 
 # Start API by default
 CMD ["gunicorn", "--bind=0.0.0.0:8000","--workers=4", "API:app"]

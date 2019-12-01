@@ -6,16 +6,21 @@ services:
           - queue
           - worker
         environment:
+          - RABBITMQ_HOST=queue
+          - RABBITMQ_PORT=5672
           - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
           - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
           - RABBITMQ_DEFAULT_VHOST=tasks
         ports:
             - "8000:8000"
         volumes:
-            - ./deepdream:/opt/deepdream
+            - ./deepdream/inputs:/opt/deepdream/inputs
+            - ./deepdream/outputs:/opt/deepdream/outputs
     queue:
         image: rabbitmq:latest
         environment:
+            - RABBITMQ_HOST=queue
+            - RABBITMQ_PORT=5672
             - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
             - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
             - RABBITMQ_DEFAULT_VHOST=tasks
@@ -24,10 +29,15 @@ services:
         command: celery -A tasks worker --loglevel=INFO
         environment:
             - GLOG_minloglevel=2                    # reduced log-level for Caffe (2=WARN, 3=ERROR)
-            - GMAIL_USER=${GMAIL_USER}
-            - GMAIL_PASS=${GMAIL_PASS}
+            - EMAIL_SMTP=smtp.gmail.com
+            - EMAIL_PORT=587
+            - EMAIL_USER=${EMAIL_USER}
+            - EMAIL_PASS=${EMAIL_PASS}
+            - RABBITMQ_HOST=queue
+            - RABBITMQ_PORT=5672
             - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
             - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
             - RABBITMQ_DEFAULT_VHOST=tasks
         volumes:
-            - ./deepdream:/opt/deepdream
+            - ./deepdream/inputs:/opt/deepdream/inputs
+            - ./deepdream/outputs:/opt/deepdream/outputs
