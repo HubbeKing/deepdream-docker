@@ -33,6 +33,7 @@ services:
             - GLOG_minloglevel=2                    # reduced log-level for Caffe (2=WARN, 3=ERROR)
             - EMAIL_SMTP=smtp.gmail.com
             - EMAIL_PORT=587
+            - EMAIL_SENDER=${EMAIL_SENDER}
             - EMAIL_USER=${EMAIL_USER}
             - EMAIL_PASS=${EMAIL_PASS}
             - RABBITMQ_HOST=queue

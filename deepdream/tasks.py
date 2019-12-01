@@ -10,8 +10,10 @@ from deepdream import dream_about, guided_dream_about
 
 EMAIL_SMTP = os.environ.get("EMAIL_SMTP")
 EMAIL_PORT = os.environ.get("EMAIL_PORT")
+EMAIL_SENDER = os.environ.get("EMAIL_SENDER")
 EMAIL_USER = os.environ.get("EMAIL_USER")
 EMAIL_PASS = os.environ.get("EMAIL_PASS")
+
 INPUT_FOLDER = "/opt/deepdream/inputs/"
 OUTPUT_FOLDER = "/opt/deepdream/outputs/"
 
@@ -82,7 +84,7 @@ def mail(address, attachment_path):
         print "Emailing {} to {}".format(attachment_path, address)
         msg = MIMEMultipart()
 
-        msg["From"] = EMAIL_USER
+        msg["From"] = EMAIL_SENDER
         msg["To"] = address
         msg["Subject"] = "Photo from Deep Dream"
 
