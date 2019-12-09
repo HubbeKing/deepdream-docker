@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: deepdream
+spec:
+  ports:
+    - port: 8000
+  selector:
+    app: deepdream
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deepdream-queue
+spec:
+  ports:
+    - port: 5672
+  selector:
+    app: deepdream-queue
