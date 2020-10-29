@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, Response
 import os
 from werkzeug.utils import secure_filename
 
@@ -12,6 +12,11 @@ ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 
 def allowed_file(filename):
     return os.path.splitext(filename)[1] in ALLOWED_EXTENSIONS
+
+
+@app.route("/health/")
+def health():
+    return Response(response="ok", status=200)
 
 
 @app.route("/upload/", methods=["GET", "POST"])
