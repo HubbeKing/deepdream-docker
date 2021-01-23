@@ -22,5 +22,5 @@ steps:
         cpu: 100
         memory: 100MiB
       limits:
-        cpu: 500
-        memory: 500MiB
+        cpu: 1000
+        memory: 1GiB
