@@ -1,0 +1,83 @@
+#FROM docker.io/bvlc/caffe:cpu
+FROM docker.io/library/ubuntu:16.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# install build requirements
+RUN apt update && apt install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    git \
+    libatlas-base-dev \
+    libboost-all-dev \
+    libgflags-dev \
+    libgoogle-glog-dev \
+    libhdf5-dev \
+    libhdf5-serial-dev \
+    libleveldb-dev \
+    liblmdb-dev \
+    libopencv-dev \
+    libprotobuf-dev \
+    libsnappy-dev \
+    protobuf-compiler \
+    python-dev \
+    python-pip \
+    wget
+
+RUN rm -rf /var/lib/apt/lists/*
+
+ENV CAFFE_ROOT=/opt/caffe
+WORKDIR $CAFFE_ROOT
+
+ENV CLONE_TAG=1.0
+
+# clone caffe project
+RUN git clone -b ${CLONE_TAG} --depth 1 https://github.com/BVLC/caffe.git .
+
+# upgrade pip to latest py2-compatible version
+RUN pip install --upgrade pip==20.3.4
+# ensure setuptools and wheel are installed
+RUN pip install setuptools
+RUN pip install wheel
+
+# edit caffe requirements file to choose exact versions
+RUN sed -i 's/h5py>=2.2.0/h5py==2.2.1/' python/requirements.txt
+RUN sed -i 's/leveldb>=0.191/leveldb==0.201/' python/requirements.txt
+RUN sed -i 's/python-dateutil>=1.4,<2/python-dateutil==1.4/' python/requirements.txt
+RUN sed -i 's/six>=1.1.0/six==1.6.0/' python/requirements.txt
+RUN sed -i 's/>=/==/g' python/requirements.txt
+
+# install requirements (some of them depend on each other, so install them one-by-one)
+RUN for req in $(cat python/requirements.txt); do pip install $req; done
+RUN pip install pydot
+
+# compile caffe
+RUN mkdir build
+RUN cd build && cmake -DCPU_ONLY=1 .. && make -j"$(nproc)"
+
+# set up required caffe paths
+ENV PYCAFFE_ROOT=/opt/caffe/python
+ENV PYTHONPATH=/opt/caffe/python
+ENV PATH=/opt/caffe/build/tools:/opt/caffe/python:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+RUN echo "$CAFFE_ROOT/build/lib" > /etc/ld.so.conf.d/caffe.conf && ldconfig
+
+# Download caffe model binary
+RUN /opt/caffe/scripts/download_model_binary.py /opt/caffe/models/bvlc_googlenet
+
+# install flask, celery, and uwsgi (API/worker requirements)
+# what's needed for deepdream.py is already in the base image
+RUN pip install celery flask uwsgi
+
+# make a non-priviledged user for running the API and celery workers
+RUN groupadd --gid 1000 dreamer
+RUN useradd --uid 1000 --gid 1000 dreamer
+
+WORKDIR /opt/deepdream
+ADD ./* /opt/deepdream/
+
+RUN chown -R dreamer:dreamer /opt/deepdream
+
+USER dreamer
+
+# Start API by default
+CMD ["uwsgi", "--http", ":8000", "--wsgi", "API:app", "--master", "--processes", "4", "--threads", "2"]
