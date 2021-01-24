@@ -1,4 +1,4 @@
-FROM bvlc/caffe:cpu
+FROM docker.io/bvlc/caffe:cpu
 
 # Download caffe model binary
 RUN /opt/caffe/scripts/download_model_binary.py /opt/caffe/models/bvlc_googlenet
