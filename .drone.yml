@@ -11,7 +11,9 @@ steps:
         from_secret: registry_username
       REGISTRY_PASSWORD:
         from_secret: registry_password
-    # can't find a way to get buildah to work right with fuse-overlayfs in unprivileged mode
+      # build with VFS, something about the overlay driver doesn't work right, lgetxattr problems.
+      STORAGE_DRIVER: vfs
+    # can't find a way to get buildah to work right in unprivileged mode. AppArmor, probably.
     privileged: true
     commands:
       - buildah login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD registry.hubbe.club
