@@ -2,8 +2,8 @@
 Simple deepdreaming docker-compose stack based on bvlc/caffe:cpu, flask, and celery
 
 Meant to provide easy-to-setup deepdreaming and guided deepdreaming as a web service.
-Accepts images to dream about in a web form, using a simple flask service running on gunicorn.
-Deepdreams are ran using the Celery framework, for asynchronus dreaming of up to X images at once, where X is the number of processors on the host system
+Accepts images to dream about in a web form, using a simple flask service running on uwsgi.
+Deepdreams are ran using the Celery framework, for asynchronus dreaming of up to X images at once, where X is the number of processors on the host system.
 Result images from deepdreams are sent out via email, using gmail SMTP servers.
 
 ## Setup
