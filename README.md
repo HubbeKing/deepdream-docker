@@ -7,9 +7,11 @@ Deepdreams are ran using the Celery framework, for asynchronus dreaming of up to
 Result images from deepdreams are sent out via email, using gmail SMTP servers.
 
 ## Setup
-- Get yourself a gmail to use for emailing out results
+- Get yourself an SMTP server to use for emailing out results
 - Make an `.env` file based on [template.env](./template.env)
   - RabbitMQ credentials can be whatever you like, but if you for some reason have this externally accessible, it's better to have good passwords
+- Make an OIDC client secrets file (`client_secrets.json`) based on [client_secrets_template.json](./client_secrets_template.json)
+  - For more details on this, see https://flask-oidc.readthedocs.io/en/latest
 - Run `docker-compose up -d`
 - Point your browser at http://localhost:8000/upload
-  - Alternatively, point a reverse proxy at it (nginx, apache, HAProxy)
+  - Ideally, point a reverse proxy at it with HTTPS support (caddy, traefik, nginx, apache)

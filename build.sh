@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t hubbeking/deepdream-docker:latest .
+buildah bud -t registry.hubbe.club/deepdream:latest .

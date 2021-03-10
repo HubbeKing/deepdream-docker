@@ -1,7 +1,7 @@
 version: '3'
 services:
     api:
-        image: hubbeking/deepdream-docker:latest
+        image: registry.hubbe.club/deepdream:latest
         depends_on:
           - queue
           - worker
@@ -11,12 +11,14 @@ services:
           - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
           - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
           - RABBITMQ_DEFAULT_VHOST=tasks
+          - DEEPDREAM_OIDC_CLIENT_SECRETS_FILE=/secrets/client_secrets.json
         ports:
             - "8000:8000"
         restart: unless-stopped
         volumes:
             - ./deepdream/inputs:/opt/deepdream/inputs
             - ./deepdream/outputs:/opt/deepdream/outputs
+            - ./client_secrets.json:/secrets/client_secrets.json
     queue:
         image: rabbitmq:latest
         environment:
@@ -27,12 +29,12 @@ services:
             - RABBITMQ_DEFAULT_VHOST=tasks
         restart: unless-stopped
     worker:
-        image: hubbeking/deepdream-docker:latest
+        image: registry.hubbe.club/deepdream:latest
         command: celery -A tasks worker --loglevel=INFO
         environment:
             - GLOG_minloglevel=2                    # reduced log-level for Caffe (2=WARN, 3=ERROR)
-            - EMAIL_SMTP=smtp.gmail.com
-            - EMAIL_PORT=587
+            - EMAIL_SMTP=${EMAIL_SMTP}
+            - EMAIL_PORT=${EMAIL_PORT}
             - EMAIL_SENDER=${EMAIL_SENDER}
             - EMAIL_USER=${EMAIL_USER}
             - EMAIL_PASS=${EMAIL_PASS}

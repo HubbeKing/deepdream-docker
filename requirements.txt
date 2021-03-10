@@ -2,8 +2,10 @@
 google
 celery
 flask
+Flask-OIDC
 IPython
 numpy
 Pillow
 protobuf
+rsa<4.*
 scipy

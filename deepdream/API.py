@@ -1,4 +1,5 @@
 from flask import Flask, request, Response
+from flask_oidc import OpenIDConnect
 import os
 from werkzeug.utils import secure_filename
 
@@ -6,6 +7,8 @@ from tasks import INPUT_FOLDER, dream_and_email, guided_dream_and_email
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = INPUT_FOLDER
+app.config["OIDC_CLIENT_SECRETS"] = os.environ.get("DEEPDREAM_OIDC_CLIENT_SECRETS_FILE", None)
+oidc = OpenIDConnect(app)
 
 ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 
@@ -20,6 +23,7 @@ def health():
 
 
 @app.route("/upload/", methods=["GET", "POST"])
+@oidc.require_login
 def upload_page():
     if request.method == "GET":
         with open("html/form.html") as html_file:

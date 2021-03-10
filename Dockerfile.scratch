@@ -66,7 +66,7 @@ RUN /opt/caffe/scripts/download_model_binary.py /opt/caffe/models/bvlc_googlenet
 
 # install flask, celery, and uwsgi (API/worker requirements)
 # what's needed for deepdream.py is already in the base image
-RUN pip install celery flask uwsgi
+RUN pip install "celery==4.4.7" "flask==1.1.2" "Flask-OIDC==1.4.0" "rsa<=4.*" "uwsgi==2.0.19.1"
 
 # make a non-priviledged user for running the API and celery workers
 RUN groupadd --gid 1000 dreamer
@@ -80,4 +80,5 @@ RUN chown -R dreamer:dreamer /opt/deepdream
 USER dreamer
 
 # Start API by default
-CMD ["uwsgi", "--http", ":8000", "--wsgi", "API:app", "--master", "--processes", "4", "--threads", "2"]
+CMD ["uwsgi", "--ini", "/opt/deepdream/uwsgi.ini"]
+
