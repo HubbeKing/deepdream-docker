@@ -2,7 +2,7 @@
 google
 celery
 flask
-Flask-OIDC
+flask-oidc-ext
 IPython
 numpy
 Pillow

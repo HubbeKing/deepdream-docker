@@ -1,5 +1,5 @@
 from flask import Flask, request, Response
-from flask_oidc import OpenIDConnect
+from flask_oidc_ext import OpenIDConnect
 import os
 from werkzeug.utils import secure_filename
 
