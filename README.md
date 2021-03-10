@@ -10,8 +10,7 @@ Result images from deepdreams are sent out via email, using SMTP.
 - Get yourself an SMTP server to use for emailing out results
 - Make an `.env` file based on [template.env](./template.env)
   - RabbitMQ credentials can be whatever you like, but if you for some reason have this externally accessible, it's better to have good passwords
-- Make an OIDC client secrets file (`client_secrets.json`) based on [client_secrets_template.json](./client_secrets_template.json)
-  - For more details on this, see https://flask-oidc.readthedocs.io/en/latest
 - Run `docker-compose up -d`
 - Point your browser at http://localhost:8000/upload
-  - Ideally, point a reverse proxy at it with HTTPS support (caddy, traefik, nginx, apache)
+  - Optionally, point a reverse proxy at it with HTTPS support (caddy, traefik, nginx, apache)
+  - If externally accessible, put it behind oauth2-proxy

@@ -11,14 +11,12 @@ services:
           - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
           - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
           - RABBITMQ_DEFAULT_VHOST=tasks
-          - DEEPDREAM_OIDC_CLIENT_SECRETS_FILE=/secrets/client_secrets.json
         ports:
             - "8000:8000"
         restart: unless-stopped
         volumes:
             - ./deepdream/inputs:/opt/deepdream/inputs
             - ./deepdream/outputs:/opt/deepdream/outputs
-            - ./client_secrets.json:/secrets/client_secrets.json
     queue:
         image: rabbitmq:latest
         environment:
