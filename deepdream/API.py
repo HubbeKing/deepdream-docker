@@ -7,6 +7,7 @@ from tasks import INPUT_FOLDER, dream_and_email, guided_dream_and_email
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = INPUT_FOLDER
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(16))
 app.config["OIDC_CLIENT_SECRETS"] = os.environ.get("DEEPDREAM_OIDC_CLIENT_SECRETS_FILE", None)
 oidc = OpenIDConnect(app)
 
