@@ -21,7 +21,6 @@ def health():
 
 
 @app.route("/upload/", methods=["GET", "POST"])
-@oidc.require_login
 def upload_page():
     if request.method == "GET":
         with open("html/form.html") as html_file:
