@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = INPUT_FOLDER
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(16))
 
-ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png"]
+ALLOWED_EXTENSIONS = [".jpg", ".jpeg"]
 
 
 def allowed_file(filename):
