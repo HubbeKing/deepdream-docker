@@ -30,24 +30,36 @@ app = Celery('tasks', broker='pyamqp://{user}:{pass}@{host}:{port}/{vhost}'.form
 
 @app.task
 def dream_and_email(input_file_path, output_layer_name, maximum_image_width, to_email):
-    deepdream = dream(input_file_path, output_layer_name, maximum_image_width)
-    if deepdream:
-        output_file_name = os.path.join(OUTPUT_FOLDER, os.path.basename(input_file_path))
-        mail(to_email, output_file_name)
-        print "Successfully dreamed about {} and emailed.".format(input_file_path)
-    else:
+    try:
+        deepdream = dream(input_file_path, output_layer_name, maximum_image_width)
+    except Exception:
+        failure(to_email, input_file_path)
         print "Failed to dream about {}".format(input_file_path)
+    else:
+        if deepdream:
+            output_file_name = os.path.join(OUTPUT_FOLDER, os.path.basename(input_file_path))
+            success(to_email, output_file_name)
+            print "Successfully dreamed about {} and emailed.".format(input_file_path)
+        else:
+            failure(to_email, input_file_path)
+            print "Failed to dream about {}".format(input_file_path)
 
 
 @app.task
 def guided_dream_and_email(input_file_path, guide_file_path, output_layer_name, maximum_image_width, to_email):
-    deepdream = guided_dream(input_file_path, guide_file_path, output_layer_name, maximum_image_width)
-    if deepdream:
-        output_file_name = os.path.join(OUTPUT_FOLDER, os.path.basename(input_file_path))
-        mail(to_email, output_file_name)
-        print "Successfully dreamed about {} and emailed.".format(input_file_path)
-    else:
+    try:
+        deepdream = guided_dream(input_file_path, guide_file_path, output_layer_name, maximum_image_width)
+    except Exception:
+        failure(to_email, input_file_path)
         print "Failed to dream about {}".format(input_file_path)
+    else:
+        if deepdream:
+            output_file_name = os.path.join(OUTPUT_FOLDER, os.path.basename(input_file_path))
+            success(to_email, output_file_name)
+            print "Successfully dreamed about {} and emailed.".format(input_file_path)
+        else:
+            failure(to_email, input_file_path)
+            print "Failed to dream about {}".format(input_file_path)
 
 
 def dream(input_file_path, output_layer_name, maximum_image_width):
@@ -66,7 +78,7 @@ def dream(input_file_path, output_layer_name, maximum_image_width):
 
 def guided_dream(input_file_path, guide_file_path, output_layer_name, maximum_image_width):
     """
-    Synchronous call to guided_dream, takes several minutes (at least)
+    Synchronous call to guided_dream_about, takes several minutes (at least)
     """
     start = time.time()
     print "Dreaming about {}".format(input_file_path)
@@ -75,30 +87,46 @@ def guided_dream(input_file_path, guide_file_path, output_layer_name, maximum_im
     print "Max-width is {}".format(maximum_image_width)
     guided_dream_about(input_file_path, guide_file_path, output_layer_name, maximum_image_width, OUTPUT_FOLDER)
     end = time.time()
-    print "Dreaming took {} seconds".format(end-start)
+    print "Guided dreaming took {} seconds".format(end-start)
     return os.path.exists(os.path.join(OUTPUT_FOLDER, os.path.basename(input_file_path)))
 
 
-def mail(address, attachment_path):
-    if address != "example@example.com":
-        print "Emailing {} to {}".format(attachment_path, address)
-        msg = MIMEMultipart()
+def failure(address, attachment_path):
+    print "Emailing about failure to {}".format(address)
+    msg = MIMEMultipart()
 
-        msg["From"] = EMAIL_SENDER
-        msg["To"] = address
-        msg["Subject"] = "Photo from Deep Dream"
+    msg["From"] = EMAIL_SENDER
+    msg["To"] = address
+    msg["Subject"] = "Deep Dream Failure"
 
-        msg.attach(MIMEText("Please find attached photo"))
+    msg.attach(MIMEText("Unfortunately, deepdreaming failed for your image {}.".format(os.path.basename(attachment_path))))
 
-        with open(attachment_path, "rb") as attachment:
-            img = MIMEImage(attachment.read())
-        img["Content-Disposition"] = 'attachment; filename="{}"'.format(os.path.basename(attachment_path))
-        msg.attach(img)
+    send_mail(address, msg)
 
-        mail_server = smtplib.SMTP(EMAIL_SMTP, EMAIL_PORT)
-        mail_server.ehlo()
-        mail_server.starttls()
-        mail_server.ehlo()
-        mail_server.login(EMAIL_USER, EMAIL_PASS)
-        mail_server.sendmail(EMAIL_USER, [address], msg.as_string())
-        mail_server.close()
+
+def success(address, attachment_path):
+    print "Emailing {} to {}".format(attachment_path, address)
+    msg = MIMEMultipart()
+
+    msg["From"] = EMAIL_SENDER
+    msg["To"] = address
+    msg["Subject"] = "Deep Dream Success"
+
+    msg.attach(MIMEText("Deepdreaming was successful! Please see attached image."))
+
+    with open(attachment_path, "rb") as attachment:
+        img = MIMEImage(attachment.read())
+    img["Content-Disposition"] = 'attachment; filename="{}"'.format(os.path.basename(attachment_path))
+    msg.attach(img)
+
+    send_mail(address, msg)
+
+
+def send_mail(address, mail):
+    mail_server = smtplib.SMTP(EMAIL_SMTP, EMAIL_PORT)
+    mail_server.ehlo()
+    mail_server.starttls()
+    mail_server.ehlo()
+    mail_server.login(EMAIL_USER, EMAIL_PASS)
+    mail_server.sendmail(EMAIL_USER, [address], mail.as_string())
+    mail_server.close()
