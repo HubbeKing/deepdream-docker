@@ -1,7 +1,7 @@
 version: '3'
 services:
     api:
-        image: registry.hubbe.club/deepdream:latest
+        build: .
         depends_on:
           - queue
           - worker
@@ -27,7 +27,7 @@ services:
             - RABBITMQ_DEFAULT_VHOST=tasks
         restart: unless-stopped
     worker:
-        image: registry.hubbe.club/deepdream:latest
+        build: .
         command: celery -A tasks worker --loglevel=INFO
         environment:
             - GLOG_minloglevel=2                    # reduced log-level for Caffe (2=WARN, 3=ERROR)
